@@ -58,4 +58,33 @@ describe('loadConfig', () => {
     mkdirSync(dirPath);
     expect(() => loadConfig(dirPath)).toThrow(/not a file/);
   });
+
+  it('throws when vault_path is relative', () => {
+    const configPath = join(tmp, 'config.json');
+    writeFileSync(configPath, JSON.stringify({
+      vault_path: 'relative/path',
+      voice_samples_path: '/abs/path',
+    }));
+    expect(() => loadConfig(configPath)).toThrow(/vault_path must be an absolute path/);
+  });
+
+  it('throws when voice_samples_path is relative', () => {
+    const configPath = join(tmp, 'config.json');
+    writeFileSync(configPath, JSON.stringify({
+      vault_path: '/abs/path',
+      voice_samples_path: 'relative/path',
+    }));
+    expect(() => loadConfig(configPath)).toThrow(/voice_samples_path must be an absolute path/);
+  });
+
+  it('normalizes path with traversal segments', () => {
+    const configPath = join(tmp, 'config.json');
+    writeFileSync(configPath, JSON.stringify({
+      vault_path: '/tmp/a/b/../c',
+      voice_samples_path: '/tmp/x/y/../z',
+    }));
+    const cfg = loadConfig(configPath);
+    expect(cfg.vault_path).toBe('/tmp/a/c');
+    expect(cfg.voice_samples_path).toBe('/tmp/x/z');
+  });
 });

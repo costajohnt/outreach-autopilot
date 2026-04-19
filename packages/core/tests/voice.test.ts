@@ -38,4 +38,13 @@ describe('loadVoiceSamples', () => {
     expect(result.samples).toEqual([]);
     expect(result.missing).toEqual([]);
   });
+
+  it('throws when filename escapes basePath via traversal', () => {
+    writeFileSync(join(tmp, 'a.md'), '# Post A');
+    expect(() => loadVoiceSamples(tmp, ['../outside.md'])).toThrow(/escapes voice_samples_path/);
+  });
+
+  it('throws when filename is an absolute path outside basePath', () => {
+    expect(() => loadVoiceSamples(tmp, ['/etc/passwd'])).toThrow(/escapes voice_samples_path/);
+  });
 });
