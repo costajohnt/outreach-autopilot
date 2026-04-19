@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { loadVoiceSamples } from '../src/lib/voice.js';
+import { loadVoiceSamples } from '../src/lib/voice';
 
 let tmp: string;
 
@@ -15,25 +15,27 @@ afterEach(() => {
 });
 
 describe('loadVoiceSamples', () => {
-  it('loads specified sample files', () => {
+  it('loads specified sample files and returns empty missing array', () => {
     writeFileSync(join(tmp, 'a.md'), '# Post A\n\nContent A.');
     writeFileSync(join(tmp, 'b.md'), '# Post B\n\nContent B.');
-    const samples = loadVoiceSamples(tmp, ['a.md', 'b.md']);
-    expect(samples).toHaveLength(2);
-    expect(samples[0].filename).toBe('a.md');
-    expect(samples[0].content).toContain('Content A');
-    expect(samples[1].filename).toBe('b.md');
+    const result = loadVoiceSamples(tmp, ['a.md', 'b.md']);
+    expect(result.samples).toHaveLength(2);
+    expect(result.samples[0].filename).toBe('a.md');
+    expect(result.samples[0].content).toContain('Content A');
+    expect(result.missing).toEqual([]);
   });
 
-  it('skips files that do not exist, warns via return', () => {
+  it('returns missing filenames for files that do not exist', () => {
     writeFileSync(join(tmp, 'a.md'), '# Post A');
-    const samples = loadVoiceSamples(tmp, ['a.md', 'missing.md']);
-    expect(samples).toHaveLength(1);
-    expect(samples[0].filename).toBe('a.md');
+    const result = loadVoiceSamples(tmp, ['a.md', 'missing.md']);
+    expect(result.samples).toHaveLength(1);
+    expect(result.samples[0].filename).toBe('a.md');
+    expect(result.missing).toEqual(['missing.md']);
   });
 
-  it('returns empty array when no files listed', () => {
-    const samples = loadVoiceSamples(tmp, []);
-    expect(samples).toEqual([]);
+  it('returns empty samples and empty missing when no files listed', () => {
+    const result = loadVoiceSamples(tmp, []);
+    expect(result.samples).toEqual([]);
+    expect(result.missing).toEqual([]);
   });
 });
