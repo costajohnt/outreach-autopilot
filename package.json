@@ -1,0 +1,27 @@
+{
+  "name": "outreach-autopilot",
+  "version": "0.1.0",
+  "description": "Claude Code plugin for AI-assisted LinkedIn outreach",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "echo 'TODO: eslint' && exit 0"
+  },
+  "keywords": [
+    "claude-code-plugin",
+    "linkedin",
+    "outreach",
+    "recruiting"
+  ],
+  "author": {
+    "name": "John Costa",
+    "url": "https://github.com/costajohnt"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}

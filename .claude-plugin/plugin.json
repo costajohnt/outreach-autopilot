@@ -1,0 +1,20 @@
+{
+  "name": "outreach-autopilot",
+  "version": "0.1.0",
+  "description": "AI-assisted LinkedIn outreach — track targets, draft comments and connection notes in your voice, without scraping LinkedIn",
+  "author": {
+    "name": "John Costa",
+    "url": "https://github.com/costajohnt"
+  },
+  "repository": "https://github.com/costajohnt/outreach-autopilot",
+  "homepage": "https://github.com/costajohnt/outreach-autopilot#readme",
+  "license": "MIT",
+  "keywords": [
+    "linkedin",
+    "outreach",
+    "recruiting",
+    "hiring",
+    "job-search",
+    "networking"
+  ]
+}
