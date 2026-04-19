@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be YYYY-MM-DD');
+
 export const TargetStatus = z.enum([
   'researching',
   'engaged',
@@ -16,10 +18,10 @@ export const TargetFrontmatter = z.object({
   role: z.string().min(1),
   linkedin_url: z.string().url(),
   status: TargetStatus,
-  first_engagement: z.string().nullable().optional(),
-  last_engagement: z.string().nullable().optional(),
-  connection_sent: z.string().nullable().optional(),
-  connection_accepted: z.string().nullable().optional(),
+  first_engagement: isoDate.nullable().optional(),
+  last_engagement: isoDate.nullable().optional(),
+  connection_sent: isoDate.nullable().optional(),
+  connection_accepted: isoDate.nullable().optional(),
   tags: z.array(z.string()).default([]),
 });
 export type TargetFrontmatter = z.infer<typeof TargetFrontmatter>;
