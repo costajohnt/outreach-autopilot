@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc && vitest run",
-    "test:watch": "vitest",
+    "test:watch": "tsc && vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

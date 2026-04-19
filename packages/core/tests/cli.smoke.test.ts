@@ -4,12 +4,19 @@ import { mkdtempSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+// Note: these tests spawn the compiled CLI at dist/cli.js. `pnpm test` runs tsc first.
+// In `pnpm test:watch`, tsc runs once on startup but is NOT re-run on source changes —
+// if you edit src/ while in watch mode, re-run `pnpm build` manually or use a separate
+// `tsc --watch` shell to keep dist/cli.js fresh.
+
 const CLI_PATH = resolve(__dirname, '..', 'dist', 'cli.js');
 
 function run(args: string[]): { status: number; stdout: string; stderr: string } {
+  const env = { ...process.env };
+  delete env.OUTREACH_AUTOPILOT_CONFIG;
   const res = spawnSync(process.execPath, [CLI_PATH, ...args], {
     encoding: 'utf-8',
-    env: { ...process.env, OUTREACH_AUTOPILOT_CONFIG: undefined },
+    env,
   });
   return {
     status: res.status ?? -1,
@@ -197,5 +204,16 @@ describe('CLI smoke: missing config', () => {
     ]);
     expect(res.status).not.toBe(0);
     expect(res.stderr).toContain('Config not found');
+  });
+
+  it('returns non-zero with clear error when config JSON is invalid', () => {
+    const badConfig = join(tmp, 'bad.json');
+    writeFileSync(badConfig, '{ not valid json');
+    const res = run([
+      'target', 'list',
+      '--config', badConfig,
+    ]);
+    expect(res.status).not.toBe(0);
+    expect(res.stderr).toContain('not valid JSON');
   });
 });
