@@ -7,8 +7,7 @@
   "scripts": {
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
-    "typecheck": "pnpm -r run typecheck",
-    "lint": "echo 'TODO: eslint' && exit 0"
+    "typecheck": "pnpm -r run typecheck"
   },
   "keywords": [
     "claude-code-plugin",

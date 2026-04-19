@@ -15,16 +15,23 @@
    cd ~/dev/outreach-autopilot
    ```
 
-2. Install the plugin in Claude Code:
-
-   Copy or symlink into your Claude Code plugins directory. (See Claude Code plugin docs for current install path.)
-
-3. Install dependencies and build:
+2. Install dependencies and build:
 
    ```bash
    pnpm install
    pnpm build
    ```
+
+3. Make the plugin available to Claude Code:
+
+   Claude Code discovers plugins via its marketplace/config flow. The simplest path is to add a local plugin entry pointing at this checkout. From within Claude Code, you can typically run:
+
+   ```
+   /plugin marketplace add ~/dev/outreach-autopilot
+   /plugin install outreach-autopilot
+   ```
+
+   If those commands don't match your Claude Code version, run `claude --help` or check the plugin docs for your installation. The plugin root must be `~/dev/outreach-autopilot` (the directory containing `.claude-plugin/plugin.json`).
 
 ## Configure
 
