@@ -13,8 +13,12 @@ export interface TargetReview {
 }
 
 function daysBetween(a: string, b: string): number {
-  const ms = new Date(b).getTime() - new Date(a).getTime();
-  return Math.floor(ms / (1000 * 60 * 60 * 24));
+  const aMs = new Date(a).getTime();
+  const bMs = new Date(b).getTime();
+  if (Number.isNaN(aMs) || Number.isNaN(bMs)) {
+    throw new Error(`Invalid date in daysBetween: a="${a}", b="${b}"`);
+  }
+  return Math.floor((bMs - aMs) / (1000 * 60 * 60 * 24));
 }
 
 export async function runTargetReview(args: TargetReviewArgs): Promise<TargetReview> {

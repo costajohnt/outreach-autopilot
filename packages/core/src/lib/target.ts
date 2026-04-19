@@ -8,6 +8,8 @@ import { TargetFrontmatter } from '../types.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = resolve(__dirname, '../../../../templates/target.md');
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 export interface NewTargetInput {
   name: string;
   company: string;
@@ -72,6 +74,10 @@ export function appendEngagement(
   slug: string,
   entry: EngagementEntry,
 ): void {
+  if (!ISO_DATE_RE.test(entry.date)) {
+    throw new Error(`Engagement date must be YYYY-MM-DD, got: ${entry.date}`);
+  }
+
   const target = readTarget(vault, slug);
   const marker = '## Engagement log';
 

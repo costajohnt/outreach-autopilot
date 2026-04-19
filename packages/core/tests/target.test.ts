@@ -110,6 +110,19 @@ describe('appendEngagement', () => {
     expect(target.frontmatter.last_engagement).toBe('2026-04-20');
   });
 
+  it('throws on non-ISO date', () => {
+    createTarget(vault, {
+      name: 'Alex Smith',
+      company: 'Vercel',
+      role: 'Head of Engineering',
+      linkedin_url: 'https://linkedin.com/in/alexsmith',
+    });
+    expect(() => appendEngagement(vault, 'alex-smith', {
+      date: '04/20/2026',
+      action: 'Commented',
+    })).toThrow(/YYYY-MM-DD/);
+  });
+
   it('sets first_engagement when empty, keeps it on subsequent entries', () => {
     createTarget(vault, {
       name: 'Alex Smith',
