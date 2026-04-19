@@ -61,12 +61,23 @@ export function readTarget(vault: string, slug: string): TargetFile {
   if (!existsSync(path)) {
     throw new Error(`Target not found: ${path}`);
   }
-  const parsed = matter(readFileSync(path, 'utf-8'));
-  return {
-    frontmatter: TargetFrontmatter.parse(parsed.data),
-    body: parsed.content,
-    path,
-  };
+  let parsed;
+  try {
+    parsed = matter(readFileSync(path, 'utf-8'));
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Could not parse frontmatter in ${path}: ${msg}`);
+  }
+  try {
+    return {
+      frontmatter: TargetFrontmatter.parse(parsed.data),
+      body: parsed.content,
+      path,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Invalid target frontmatter in ${path}: ${msg}`);
+  }
 }
 
 export function appendEngagement(
