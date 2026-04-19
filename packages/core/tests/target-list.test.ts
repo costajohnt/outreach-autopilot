@@ -29,6 +29,29 @@ describe('runTargetList', () => {
     expect(result).toEqual([]);
   });
 
+  it('skips corrupted target files and continues', async () => {
+    createTarget(vault, {
+      name: 'Alex Smith',
+      company: 'Vercel',
+      role: 'HoE',
+      linkedin_url: 'https://linkedin.com/in/alex',
+    });
+    // Write a broken target file
+    const { writeFileSync } = await import('fs');
+    writeFileSync(join(vault, 'targets', 'broken.md'), '---\nname: Broken\n---\n# Broken\n');
+
+    // Suppress console.warn for test
+    const originalWarn = console.warn;
+    console.warn = () => {};
+    try {
+      const result = await runTargetList({ config: configPath });
+      expect(result).toHaveLength(1);
+      expect(result[0].slug).toBe('alex-smith');
+    } finally {
+      console.warn = originalWarn;
+    }
+  });
+
   it('lists all targets with their status and last engagement', async () => {
     createTarget(vault, {
       name: 'Alex Smith',
