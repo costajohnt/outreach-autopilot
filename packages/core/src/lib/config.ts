@@ -1,5 +1,5 @@
 import { readFileSync, existsSync, statSync } from 'fs';
-import { Config } from '../types';
+import { Config } from '../types.js';
 
 export function loadConfig(path: string): Config {
   if (!existsSync(path)) {

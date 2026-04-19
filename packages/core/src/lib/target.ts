@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
-import { toSlug } from './slug';
-import { TargetFrontmatter } from '../types';
+import { toSlug } from './slug.js';
+import { TargetFrontmatter } from '../types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = resolve(__dirname, '../../../../templates/target.md');
