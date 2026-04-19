@@ -17,19 +17,33 @@ Once all four are collected, confirm with the user before creating.
 
 ## Create the target
 
-Pass user-provided values as environment variables to avoid shell injection from special characters in names, companies, or roles (double quotes, backticks, `$`, etc.).
-
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
 source "${CLAUDE_PLUGIN_ROOT}/scripts/ensure-cli-built.sh" || exit 1
 
-# Set env vars with user input (model must substitute the literal values for the placeholders).
-# Because env var values are passed to the CLI as argv through "$VAR" expansion,
-# shell metacharacters in the values are safe.
-export OA_NAME="<NAME>"
-export OA_COMPANY="<COMPANY>"
-export OA_ROLE="<ROLE>"
-export OA_LINKEDIN="<LINKEDIN_URL>"
+# Read user-provided values from single-quoted heredocs so backticks, $(...),
+# and other shell metacharacters in user input cannot execute.
+# Each value must fit on one line.
+
+IFS= read -r OA_NAME <<'OA_HEREDOC_NAME'
+<NAME>
+OA_HEREDOC_NAME
+export OA_NAME
+
+IFS= read -r OA_COMPANY <<'OA_HEREDOC_COMPANY'
+<COMPANY>
+OA_HEREDOC_COMPANY
+export OA_COMPANY
+
+IFS= read -r OA_ROLE <<'OA_HEREDOC_ROLE'
+<ROLE>
+OA_HEREDOC_ROLE
+export OA_ROLE
+
+IFS= read -r OA_LINKEDIN <<'OA_HEREDOC_LINKEDIN'
+<LINKEDIN_URL>
+OA_HEREDOC_LINKEDIN
+export OA_LINKEDIN
 
 node "${CLI}" target add \
   --config "${CONFIG}" \
@@ -39,7 +53,7 @@ node "${CLI}" target add \
   --linkedin "$OA_LINKEDIN"
 ```
 
-Substitute `<NAME>`, `<COMPANY>`, `<ROLE>`, `<LINKEDIN_URL>` with the actual collected values. Double-quote characters inside those values should be escaped with a backslash before substitution (`O'Brien` is fine; `She said "hi"` should become `She said \"hi\"`).
+Substitute `<NAME>`, `<COMPANY>`, `<ROLE>`, `<LINKEDIN_URL>` with the literal user values on the indicated lines. Because those values sit inside single-quoted heredocs, you do NOT need to escape backticks, `$`, `\`, or double quotes — they're read verbatim.
 
 ## After creation
 
