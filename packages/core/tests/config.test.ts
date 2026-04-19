@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync } from 'fs';
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { loadConfig } from '../src/lib/config';
@@ -45,5 +45,17 @@ describe('loadConfig', () => {
 
   it('throws if file does not exist', () => {
     expect(() => loadConfig(join(tmp, 'missing.json'))).toThrow(/not found/);
+  });
+
+  it('throws with clear message on invalid JSON', () => {
+    const configPath = join(tmp, 'config.json');
+    writeFileSync(configPath, '{ not valid json }');
+    expect(() => loadConfig(configPath)).toThrow(/not valid JSON/);
+  });
+
+  it('throws if path is a directory', () => {
+    const dirPath = join(tmp, 'not-a-file');
+    mkdirSync(dirPath);
+    expect(() => loadConfig(dirPath)).toThrow(/not a file/);
   });
 });
