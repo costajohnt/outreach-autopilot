@@ -40,6 +40,15 @@ describe('createTarget', () => {
     expect(path).toBe(join(vault, 'targets', 'alex-smith.md'));
   });
 
+  it('throws when name has no slug-safe characters', () => {
+    expect(() => createTarget(vault, {
+      name: '!!!',
+      company: 'Vercel',
+      role: 'HoE',
+      linkedin_url: 'https://linkedin.com/in/alex',
+    })).toThrow(/slug/);
+  });
+
   it('throws if target already exists', () => {
     const input = {
       name: 'Alex Smith',

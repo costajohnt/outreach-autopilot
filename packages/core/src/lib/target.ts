@@ -32,6 +32,9 @@ export function targetPath(vault: string, slug: string): string {
 
 export function createTarget(vault: string, input: NewTargetInput): string {
   const slug = toSlug(input.name);
+  if (!slug) {
+    throw new Error(`Cannot derive a valid slug from name: "${input.name}"`);
+  }
   const path = targetPath(vault, slug);
 
   if (existsSync(path)) {
