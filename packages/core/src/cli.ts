@@ -70,6 +70,13 @@ voice
   });
 
 program.parseAsync().catch((err) => {
-  console.error('Error:', err instanceof Error ? err.message : String(err));
+  if (err instanceof Error) {
+    console.error('Error:', err.message);
+    if (process.env.OUTREACH_AUTOPILOT_DEBUG) {
+      console.error(err.stack);
+    }
+  } else {
+    console.error('Error:', String(err));
+  }
   process.exit(1);
 });
