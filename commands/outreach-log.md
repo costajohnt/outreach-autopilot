@@ -16,16 +16,24 @@ If the user provides a name instead of a slug, run the slug conversion inline: l
 
 ## Log the engagement
 
-Pass user-provided values as environment variables.
-
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
 source "${CLAUDE_PLUGIN_ROOT}/scripts/ensure-cli-built.sh" || exit 1
 
-export OA_SLUG="<SLUG>"
-export OA_ACTION="<ACTION>"
-# OA_DATE is optional; leave unset if the user didn't provide a date.
-export OA_DATE="<DATE_OR_EMPTY>"
+IFS= read -r OA_SLUG <<'OA_HEREDOC_SLUG'
+<SLUG>
+OA_HEREDOC_SLUG
+export OA_SLUG
+
+IFS= read -r OA_ACTION <<'OA_HEREDOC_ACTION'
+<ACTION>
+OA_HEREDOC_ACTION
+export OA_ACTION
+
+IFS= read -r OA_DATE <<'OA_HEREDOC_DATE'
+<DATE_OR_EMPTY>
+OA_HEREDOC_DATE
+export OA_DATE
 
 if [ -n "$OA_DATE" ]; then
   node "${CLI}" target log --config "${CONFIG}" --slug "$OA_SLUG" --action "$OA_ACTION" --date "$OA_DATE"
@@ -34,7 +42,7 @@ else
 fi
 ```
 
-Substitute `<SLUG>`, `<ACTION>`, and `<DATE_OR_EMPTY>` (leave as empty string when the user didn't provide a date). Escape any embedded double quotes in the values with a backslash.
+Substitute `<SLUG>`, `<ACTION>`, and `<DATE_OR_EMPTY>` (leave blank for today). Values are read verbatim inside single-quoted heredocs, so no escaping is needed.
 
 ## After logging
 
