@@ -2,6 +2,7 @@ import { readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from '../lib/config.js';
 import { readTarget } from '../lib/target.js';
+import { TargetStatus } from '../types.js';
 
 export interface TargetListArgs {
   config: string;
@@ -12,7 +13,7 @@ export interface TargetSummary {
   name: string;
   company: string;
   role: string;
-  status: string;
+  status: TargetStatus;
   first_engagement: string | null;
   last_engagement: string | null;
   connection_sent: string | null;
