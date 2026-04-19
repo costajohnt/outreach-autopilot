@@ -31,7 +31,7 @@ node "${CLI}" target log \
   --config "${CONFIG}" \
   --slug "<SLUG>" \
   --action "<ACTION>" \
-  ${DATE:+--date "$DATE"}
+  ${DATE:+--date} ${DATE:+"$DATE"}
 ```
 
 Replace `<SLUG>` and `<ACTION>` with collected values. Only include `--date` if the user provided one.
