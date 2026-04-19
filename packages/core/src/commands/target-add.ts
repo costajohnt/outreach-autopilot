@@ -23,8 +23,9 @@ export async function runTargetAdd(args: TargetAddArgs): Promise<TargetAddResult
 
   try {
     new URL(args.linkedin);
-  } catch {
-    throw new Error('linkedin must be a valid URL');
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(`linkedin must be a valid URL (got: '${args.linkedin}'): ${detail}`);
   }
 
   const cfg = loadConfig(args.config);

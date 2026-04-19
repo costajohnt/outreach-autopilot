@@ -82,6 +82,6 @@ describe('runTargetAdd', () => {
       company: 'Vercel',
       role: 'HoE',
       linkedin: 'not-a-url',
-    })).rejects.toThrow();
+    })).rejects.toThrow(/linkedin must be a valid URL/);
   });
 });
