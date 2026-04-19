@@ -24,32 +24,10 @@ afterEach(() => {
 });
 
 describe('runTargetList', () => {
-  it('returns empty array when no targets', async () => {
+  it('returns empty targets + skipped when no targets dir exists', async () => {
     const result = await runTargetList({ config: configPath });
-    expect(result).toEqual([]);
-  });
-
-  it('skips corrupted target files and continues', async () => {
-    createTarget(vault, {
-      name: 'Alex Smith',
-      company: 'Vercel',
-      role: 'HoE',
-      linkedin_url: 'https://linkedin.com/in/alex',
-    });
-    // Write a broken target file
-    const { writeFileSync } = await import('fs');
-    writeFileSync(join(vault, 'targets', 'broken.md'), '---\nname: Broken\n---\n# Broken\n');
-
-    // Suppress console.warn for test
-    const originalWarn = console.warn;
-    console.warn = () => {};
-    try {
-      const result = await runTargetList({ config: configPath });
-      expect(result).toHaveLength(1);
-      expect(result[0].slug).toBe('alex-smith');
-    } finally {
-      console.warn = originalWarn;
-    }
+    expect(result.targets).toEqual([]);
+    expect(result.skipped).toEqual([]);
   });
 
   it('lists all targets with their status and last engagement', async () => {
@@ -68,14 +46,32 @@ describe('runTargetList', () => {
     appendEngagement(vault, 'alex-smith', { date: '2026-04-20', action: 'Commented' });
 
     const result = await runTargetList({ config: configPath });
-    expect(result).toHaveLength(2);
+    expect(result.targets).toHaveLength(2);
+    expect(result.skipped).toEqual([]);
 
-    const alex = result.find((t) => t.slug === 'alex-smith')!;
+    const alex = result.targets.find((t) => t.slug === 'alex-smith')!;
     expect(alex.name).toBe('Alex Smith');
     expect(alex.company).toBe('Vercel');
     expect(alex.last_engagement).toBe('2026-04-20');
 
-    const jamie = result.find((t) => t.slug === 'jamie-lee')!;
+    const jamie = result.targets.find((t) => t.slug === 'jamie-lee')!;
     expect(jamie.last_engagement).toBeNull();
+  });
+
+  it('skips corrupted target files and reports them in skipped array', async () => {
+    createTarget(vault, {
+      name: 'Alex Smith',
+      company: 'Vercel',
+      role: 'HoE',
+      linkedin_url: 'https://linkedin.com/in/alex',
+    });
+    writeFileSync(join(vault, 'targets', 'broken.md'), '---\nname: Broken\n---\n# Broken\n');
+
+    const result = await runTargetList({ config: configPath });
+    expect(result.targets).toHaveLength(1);
+    expect(result.targets[0].slug).toBe('alex-smith');
+    expect(result.skipped).toHaveLength(1);
+    expect(result.skipped[0].file).toBe('broken.md');
+    expect(result.skipped[0].reason).toContain('broken.md');
   });
 });

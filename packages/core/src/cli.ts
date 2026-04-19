@@ -46,6 +46,10 @@ target
   .action(async (opts) => {
     const result = await runTargetList(opts);
     console.log(JSON.stringify(result, null, 2));
+    if (result.skipped.length > 0) {
+      console.error(`Warning: skipped ${result.skipped.length} corrupted file(s)`);
+      process.exitCode = 1;
+    }
   });
 
 target

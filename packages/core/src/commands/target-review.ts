@@ -22,7 +22,7 @@ function daysBetween(a: string, b: string): number {
 }
 
 export async function runTargetReview(args: TargetReviewArgs): Promise<TargetReview> {
-  const targets = await runTargetList({ config: args.config });
+  const { targets } = await runTargetList({ config: args.config });
   const today = args.today ?? new Date().toISOString().slice(0, 10);
 
   const needs_first_engagement = targets.filter(

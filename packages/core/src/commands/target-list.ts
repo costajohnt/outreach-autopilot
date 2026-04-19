@@ -20,20 +20,32 @@ export interface TargetSummary {
   connection_accepted: string | null;
 }
 
-export async function runTargetList(args: TargetListArgs): Promise<TargetSummary[]> {
+export interface SkippedFile {
+  file: string;
+  reason: string;
+}
+
+export interface TargetListResult {
+  targets: TargetSummary[];
+  skipped: SkippedFile[];
+}
+
+export async function runTargetList(args: TargetListArgs): Promise<TargetListResult> {
   const cfg = loadConfig(args.config);
   const targetsDir = join(cfg.vault_path, 'targets');
-  if (!existsSync(targetsDir)) return [];
+  if (!existsSync(targetsDir)) return { targets: [], skipped: [] };
 
   const files = readdirSync(targetsDir).filter((f) => f.endsWith('.md'));
 
-  const summaries: TargetSummary[] = [];
+  const targets: TargetSummary[] = [];
+  const skipped: SkippedFile[] = [];
+
   for (const file of files) {
     const slug = file.replace(/\.md$/, '');
     try {
       const target = readTarget(cfg.vault_path, slug);
       const fm = target.frontmatter;
-      summaries.push({
+      targets.push({
         slug,
         name: fm.name,
         company: fm.company,
@@ -45,9 +57,9 @@ export async function runTargetList(args: TargetListArgs): Promise<TargetSummary
         connection_accepted: fm.connection_accepted ?? null,
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.warn(`Skipping ${file}: ${msg}`);
+      const reason = err instanceof Error ? err.message : String(err);
+      skipped.push({ file, reason });
     }
   }
-  return summaries;
+  return { targets, skipped };
 }
