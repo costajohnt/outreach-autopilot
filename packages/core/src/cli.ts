@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { runTargetAdd } from './commands/target-add.js';
+import { runTargetLog } from './commands/target-log.js';
 
 const program = new Command();
 program
@@ -21,6 +22,18 @@ target
   .action(async (opts) => {
     const result = await runTargetAdd(opts);
     console.log(JSON.stringify(result, null, 2));
+  });
+
+target
+  .command('log')
+  .description('Log engagement with a target')
+  .requiredOption('--config <path>', 'path to config.json')
+  .requiredOption('--slug <slug>', 'target slug')
+  .requiredOption('--action <text>', 'what you did')
+  .option('--date <YYYY-MM-DD>', 'date (default: today)')
+  .action(async (opts) => {
+    await runTargetLog(opts);
+    console.log(`Logged engagement with ${opts.slug}`);
   });
 
 program.parseAsync().catch((err) => {
