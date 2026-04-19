@@ -19,4 +19,4 @@ tags: []
 
 ## Engagement log
 
-(Entries appended here chronologically.)
+(Entries appended here chronologically, oldest first.)

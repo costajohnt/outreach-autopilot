@@ -136,6 +136,20 @@ describe('appendEngagement', () => {
     expect(target.frontmatter.first_engagement).toBe('2026-04-20');
     expect(target.frontmatter.last_engagement).toBe('2026-04-25');
   });
+
+  it('rejects engagement dated before last_engagement', () => {
+    createTarget(vault, {
+      name: 'Alex Smith',
+      company: 'Vercel',
+      role: 'Head of Engineering',
+      linkedin_url: 'https://linkedin.com/in/alexsmith',
+    });
+    appendEngagement(vault, 'alex-smith', { date: '2026-04-20', action: 'First' });
+    expect(() => appendEngagement(vault, 'alex-smith', {
+      date: '2026-04-15',
+      action: 'Backdated',
+    })).toThrow(/older than last_engagement/);
+  });
 });
 
 describe('targetPath', () => {

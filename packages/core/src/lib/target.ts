@@ -92,6 +92,12 @@ export function appendEngagement(
   const target = readTarget(vault, slug);
   const marker = '## Engagement log';
 
+  if (target.frontmatter.last_engagement && entry.date < target.frontmatter.last_engagement) {
+    throw new Error(
+      `Engagement date (${entry.date}) is older than last_engagement (${target.frontmatter.last_engagement}). Edit the target file manually to backfill.`,
+    );
+  }
+
   const parts = target.body.split(marker);
   if (parts.length < 2) {
     throw new Error(`Target body missing "${marker}" section: ${target.path}`);
@@ -102,12 +108,13 @@ export function appendEngagement(
   const line = `- ${entry.date}: ${entry.action}`;
 
   const cleanedAfter = after
+    .replace('(Entries appended here chronologically, oldest first.)', '')
     .replace('(Entries appended here chronologically.)', '')
     .replace(/^\s+/, '')
     .replace(/\s+$/, '');
 
   const newSection = cleanedAfter
-    ? `${marker}\n\n${line}\n\n${cleanedAfter}\n`
+    ? `${marker}\n\n${cleanedAfter}\n${line}\n`
     : `${marker}\n\n${line}\n`;
 
   const body = `${before}${newSection}`;
