@@ -12,26 +12,33 @@ Ask the user:
 2. **The post they want to comment on** — ask them to paste the full text of the post. If they also want to share the URL and any thread context, accept that.
 3. **Optional context** — anything specific they want the comment to emphasize or avoid.
 
-## Gather context
+## Load voice samples
 
-Build the config path the same way as other commands:
+Verify all configured voice samples exist. If any are missing the CLI will throw and the error message will list which files.
 
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
+CLI="${CLAUDE_PLUGIN_ROOT}/packages/core/dist/cli.js"
+
+# Rebuild if stale
+if [ ! -f "${CLI}" ] || [ -n "$(find "${CLAUDE_PLUGIN_ROOT}/packages/core/src" -newer "${CLI}" -print -quit 2>/dev/null)" ]; then
+  (cd "${CLAUDE_PLUGIN_ROOT}/packages/core" && pnpm install --silent && pnpm build --silent) >/dev/null 2>&1 || {
+    echo "CLI build failed"; exit 1;
+  }
+fi
+
+node "${CLI}" voice samples --config "${CONFIG}"
 ```
 
-Read the config to get `vault_path` and `voice_samples_path`.
+If the CLI reports missing files, stop and tell the user to fix their config. Don't proceed without the voice samples.
 
-Then read:
+## Read target context
 
-- Target file: `<vault_path>/targets/<slug>.md` — the frontmatter and research notes
-- Voice samples: each file in `voice_sample_files` from the voice_samples_path
-
-Read these using the Read tool.
+Read the target file at `<vault_path>/targets/<slug>.md` using the Read tool. Use the config's `vault_path` (you can parse it from the config.json file).
 
 ## Voice guidelines
 
-The user's voice (calibrate from the samples you just read):
+The user's voice (calibrate from the samples returned above):
 
 - Short, direct sentences
 - No em dashes (period)
