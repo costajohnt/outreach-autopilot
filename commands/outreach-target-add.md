@@ -21,14 +21,7 @@ Pass user-provided values as environment variables to avoid shell injection from
 
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
-CLI="${CLAUDE_PLUGIN_ROOT}/packages/core/dist/cli.js"
-
-# Rebuild if stale
-if [ ! -f "${CLI}" ] || [ -n "$(find "${CLAUDE_PLUGIN_ROOT}/packages/core/src" -newer "${CLI}" -print -quit 2>/dev/null)" ]; then
-  (cd "${CLAUDE_PLUGIN_ROOT}/packages/core" && pnpm install --silent && pnpm build --silent) >/dev/null 2>&1 || {
-    echo "CLI build failed"; exit 1;
-  }
-fi
+source "${CLAUDE_PLUGIN_ROOT}/scripts/ensure-cli-built.sh" || exit 1
 
 # Set env vars with user input (model must substitute the literal values for the placeholders).
 # Because env var values are passed to the CLI as argv through "$VAR" expansion,
