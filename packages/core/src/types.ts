@@ -11,9 +11,9 @@ export const TargetStatus = z.enum([
 export type TargetStatus = z.infer<typeof TargetStatus>;
 
 export const TargetFrontmatter = z.object({
-  name: z.string(),
-  company: z.string(),
-  role: z.string(),
+  name: z.string().min(1),
+  company: z.string().min(1),
+  role: z.string().min(1),
   linkedin_url: z.string().url(),
   status: TargetStatus,
   first_engagement: z.string().nullable().optional(),
