@@ -4,6 +4,7 @@ import { runTargetAdd } from './commands/target-add.js';
 import { runTargetLog } from './commands/target-log.js';
 import { runTargetList } from './commands/target-list.js';
 import { runTargetReview } from './commands/target-review.js';
+import { runVoiceSamples } from './commands/voice-samples.js';
 
 const program = new Command();
 program
@@ -54,6 +55,17 @@ target
   .option('--today <YYYY-MM-DD>', 'override today (for testing)')
   .action(async (opts) => {
     const result = await runTargetReview(opts);
+    console.log(JSON.stringify(result, null, 2));
+  });
+
+const voice = program.command('voice').description('Voice sample management');
+
+voice
+  .command('samples')
+  .description('Load voice samples and report any missing files')
+  .requiredOption('--config <path>', 'path to config.json')
+  .action(async (opts) => {
+    const result = await runVoiceSamples(opts);
     console.log(JSON.stringify(result, null, 2));
   });
 
