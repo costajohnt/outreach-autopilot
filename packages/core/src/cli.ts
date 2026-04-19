@@ -2,6 +2,7 @@
 import { Command } from 'commander';
 import { runTargetAdd } from './commands/target-add.js';
 import { runTargetLog } from './commands/target-log.js';
+import { runTargetList } from './commands/target-list.js';
 
 const program = new Command();
 program
@@ -34,6 +35,15 @@ target
   .action(async (opts) => {
     await runTargetLog(opts);
     console.log(`Logged engagement with ${opts.slug}`);
+  });
+
+target
+  .command('list')
+  .description('List all targets')
+  .requiredOption('--config <path>', 'path to config.json')
+  .action(async (opts) => {
+    const result = await runTargetList(opts);
+    console.log(JSON.stringify(result, null, 2));
   });
 
 program.parseAsync().catch((err) => {
