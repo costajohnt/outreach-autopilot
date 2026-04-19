@@ -44,4 +44,44 @@ describe('runTargetAdd', () => {
       linkedin: 'https://linkedin.com/in/alexsmith',
     })).rejects.toThrow(/name/);
   });
+
+  it('throws if company is missing', async () => {
+    await expect(runTargetAdd({
+      config: configPath,
+      name: 'Alex',
+      company: '',
+      role: 'HoE',
+      linkedin: 'https://linkedin.com/in/alex',
+    })).rejects.toThrow(/company/);
+  });
+
+  it('throws if role is missing', async () => {
+    await expect(runTargetAdd({
+      config: configPath,
+      name: 'Alex',
+      company: 'Vercel',
+      role: '',
+      linkedin: 'https://linkedin.com/in/alex',
+    })).rejects.toThrow(/role/);
+  });
+
+  it('throws if linkedin is missing', async () => {
+    await expect(runTargetAdd({
+      config: configPath,
+      name: 'Alex',
+      company: 'Vercel',
+      role: 'HoE',
+      linkedin: '',
+    })).rejects.toThrow(/linkedin/);
+  });
+
+  it('throws if linkedin URL is invalid', async () => {
+    await expect(runTargetAdd({
+      config: configPath,
+      name: 'Alex',
+      company: 'Vercel',
+      role: 'HoE',
+      linkedin: 'not-a-url',
+    })).rejects.toThrow();
+  });
 });

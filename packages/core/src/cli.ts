@@ -23,4 +23,7 @@ target
     console.log(JSON.stringify(result, null, 2));
   });
 
-program.parseAsync();
+program.parseAsync().catch((err) => {
+  console.error('Error:', err instanceof Error ? err.message : String(err));
+  process.exit(1);
+});
