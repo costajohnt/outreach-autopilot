@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { loadVoiceSamples } from '../src/lib/voice';
@@ -46,5 +46,14 @@ describe('loadVoiceSamples', () => {
 
   it('throws when filename is an absolute path outside basePath', () => {
     expect(() => loadVoiceSamples(tmp, ['/etc/passwd'])).toThrow(/escapes voice_samples_path/);
+  });
+
+  it('throws on prefix-sibling attack (adjacent directory with same prefix)', () => {
+    const voice = join(tmp, 'voice');
+    const voiceTwo = join(tmp, 'voice2');
+    mkdirSync(voice);
+    mkdirSync(voiceTwo);
+    writeFileSync(join(voiceTwo, 'evil.md'), '# Evil');
+    expect(() => loadVoiceSamples(voice, ['../voice2/evil.md'])).toThrow(/escapes voice_samples_path/);
   });
 });

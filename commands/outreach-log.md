@@ -42,6 +42,8 @@ else
 fi
 ```
 
+Each value must fit on one line (read -r reads one line).
+
 Substitute `<SLUG>`, `<ACTION>`, and `<DATE_OR_EMPTY>` (leave blank for today). Values are read verbatim inside single-quoted heredocs, so no escaping is needed.
 
 ## After logging
