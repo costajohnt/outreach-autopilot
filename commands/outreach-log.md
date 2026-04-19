@@ -16,25 +16,32 @@ If the user provides a name instead of a slug, run the slug conversion inline: l
 
 ## Log the engagement
 
+Pass user-provided values as environment variables.
+
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
 CLI="${CLAUDE_PLUGIN_ROOT}/packages/core/dist/cli.js"
 
-# Rebuild if stale (same check as outreach-target-add)
+# Rebuild if stale
 if [ ! -f "${CLI}" ] || [ -n "$(find "${CLAUDE_PLUGIN_ROOT}/packages/core/src" -newer "${CLI}" -print -quit 2>/dev/null)" ]; then
   (cd "${CLAUDE_PLUGIN_ROOT}/packages/core" && pnpm install --silent && pnpm build --silent) >/dev/null 2>&1 || {
     echo "CLI build failed"; exit 1;
   }
 fi
 
-node "${CLI}" target log \
-  --config "${CONFIG}" \
-  --slug "<SLUG>" \
-  --action "<ACTION>" \
-  ${DATE:+--date} ${DATE:+"$DATE"}
+export OA_SLUG="<SLUG>"
+export OA_ACTION="<ACTION>"
+# OA_DATE is optional; leave unset if the user didn't provide a date.
+export OA_DATE="<DATE_OR_EMPTY>"
+
+if [ -n "$OA_DATE" ]; then
+  node "${CLI}" target log --config "${CONFIG}" --slug "$OA_SLUG" --action "$OA_ACTION" --date "$OA_DATE"
+else
+  node "${CLI}" target log --config "${CONFIG}" --slug "$OA_SLUG" --action "$OA_ACTION"
+fi
 ```
 
-Replace `<SLUG>` and `<ACTION>` with collected values. Only include `--date` if the user provided one.
+Substitute `<SLUG>`, `<ACTION>`, and `<DATE_OR_EMPTY>` (leave as empty string when the user didn't provide a date). Escape any embedded double quotes in the values with a backslash.
 
 ## After logging
 

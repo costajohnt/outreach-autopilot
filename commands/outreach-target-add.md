@@ -17,7 +17,7 @@ Once all four are collected, confirm with the user before creating.
 
 ## Create the target
 
-Build the shell command carefully. Escape each argument using double quotes. Resolve the config path from the environment variable `$OUTREACH_AUTOPILOT_CONFIG` if set, otherwise use `~/.outreach-autopilot/config.json`.
+Pass user-provided values as environment variables to avoid shell injection from special characters in names, companies, or roles (double quotes, backticks, `$`, etc.).
 
 ```bash
 CONFIG="${OUTREACH_AUTOPILOT_CONFIG:-$HOME/.outreach-autopilot/config.json}"
@@ -30,15 +30,23 @@ if [ ! -f "${CLI}" ] || [ -n "$(find "${CLAUDE_PLUGIN_ROOT}/packages/core/src" -
   }
 fi
 
+# Set env vars with user input (model must substitute the literal values for the placeholders).
+# Because env var values are passed to the CLI as argv through "$VAR" expansion,
+# shell metacharacters in the values are safe.
+export OA_NAME="<NAME>"
+export OA_COMPANY="<COMPANY>"
+export OA_ROLE="<ROLE>"
+export OA_LINKEDIN="<LINKEDIN_URL>"
+
 node "${CLI}" target add \
   --config "${CONFIG}" \
-  --name "<NAME>" \
-  --company "<COMPANY>" \
-  --role "<ROLE>" \
-  --linkedin "<LINKEDIN_URL>"
+  --name "$OA_NAME" \
+  --company "$OA_COMPANY" \
+  --role "$OA_ROLE" \
+  --linkedin "$OA_LINKEDIN"
 ```
 
-Replace `<NAME>`, `<COMPANY>`, `<ROLE>`, `<LINKEDIN_URL>` with the actual collected values (still wrapped in double quotes so spaces are preserved).
+Substitute `<NAME>`, `<COMPANY>`, `<ROLE>`, `<LINKEDIN_URL>` with the actual collected values. Double-quote characters inside those values should be escaped with a backslash before substitution (`O'Brien` is fine; `She said "hi"` should become `She said \"hi\"`).
 
 ## After creation
 
