@@ -49,6 +49,31 @@ describe('createTarget', () => {
     })).toThrow(/slug/);
   });
 
+  it('handles names with double quotes correctly', () => {
+    createTarget(vault, {
+      name: 'Bob "The Builder"',
+      company: 'Acme "Inc"',
+      role: 'VP of Stuff',
+      linkedin_url: 'https://linkedin.com/in/bob',
+    });
+    // Verify the written file is readable (valid YAML)
+    const target = readTarget(vault, 'bob-the-builder');
+    expect(target.frontmatter.name).toBe('Bob "The Builder"');
+    expect(target.frontmatter.company).toBe('Acme "Inc"');
+  });
+
+  it('handles names with special characters correctly', () => {
+    createTarget(vault, {
+      name: "O'Brien & Sons",
+      company: 'Big $ Money',
+      role: 'CEO',
+      linkedin_url: 'https://linkedin.com/in/obrien',
+    });
+    const target = readTarget(vault, 'o-brien-sons');
+    expect(target.frontmatter.name).toBe("O'Brien & Sons");
+    expect(target.frontmatter.company).toBe('Big $ Money');
+  });
+
   it('throws if target already exists', () => {
     const input = {
       name: 'Alex Smith',

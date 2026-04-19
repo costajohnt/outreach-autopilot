@@ -1,12 +1,8 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
 import matter from 'gray-matter';
 import { toSlug } from './slug.js';
 import { TargetFrontmatter } from '../types.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATE_PATH = resolve(__dirname, '../../../../templates/target.md');
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -45,14 +41,32 @@ export function createTarget(vault: string, input: NewTargetInput): string {
 
   mkdirSync(dirname(path), { recursive: true });
 
-  const template = readFileSync(TEMPLATE_PATH, 'utf-8');
-  const rendered = template
-    .replaceAll('{{name}}', input.name)
-    .replaceAll('{{company}}', input.company)
-    .replaceAll('{{role}}', input.role)
-    .replaceAll('{{linkedin_url}}', input.linkedin_url);
+  const frontmatter = {
+    name: input.name,
+    company: input.company,
+    role: input.role,
+    linkedin_url: input.linkedin_url,
+    status: 'researching' as const,
+    first_engagement: null,
+    last_engagement: null,
+    connection_sent: null,
+    connection_accepted: null,
+    tags: [] as string[],
+  };
 
-  writeFileSync(path, rendered);
+  const body = `# ${input.name}
+
+## Research notes
+
+(Fill in what they care about, their recent themes, hooks for engagement.)
+
+## Engagement log
+
+(Entries appended here chronologically, oldest first.)
+`;
+
+  const serialized = matter.stringify(body, frontmatter);
+  writeFileSync(path, serialized);
   return path;
 }
 
