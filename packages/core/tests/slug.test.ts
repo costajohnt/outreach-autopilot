@@ -25,4 +25,20 @@ describe('toSlug', () => {
   it('collapses runs of dashes', () => {
     expect(toSlug('alex---smith')).toBe('alex-smith');
   });
+
+  it('returns empty string for empty input', () => {
+    expect(toSlug('')).toBe('');
+  });
+
+  it('returns empty string for pure punctuation', () => {
+    expect(toSlug('!!!')).toBe('');
+  });
+
+  it('preserves numbers', () => {
+    expect(toSlug('Agent 007')).toBe('agent-007');
+  });
+
+  it('strips emoji and non-ASCII after diacritic normalization', () => {
+    expect(toSlug('Jörg 👍')).toBe('jorg');
+  });
 });
