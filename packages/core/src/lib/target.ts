@@ -1,10 +1,12 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
 import { toSlug } from './slug';
 import { TargetFrontmatter } from '../types';
 
-const TEMPLATE_PATH = new URL('../../../../templates/target.md', import.meta.url).pathname;
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const TEMPLATE_PATH = resolve(__dirname, '../../../../templates/target.md');
 
 export interface NewTargetInput {
   name: string;
@@ -68,22 +70,27 @@ export function appendEngagement(
   entry: EngagementEntry,
 ): void {
   const target = readTarget(vault, slug);
+  const marker = '## Engagement log';
+
+  const parts = target.body.split(marker);
+  if (parts.length < 2) {
+    throw new Error(`Target body missing "${marker}" section: ${target.path}`);
+  }
+
+  const before = parts[0];
+  const after = parts.slice(1).join(marker);
   const line = `- ${entry.date}: ${entry.action}`;
 
-  let body = target.body;
-  const marker = '## Engagement log';
-  if (body.includes(marker)) {
-    body = body.replace(
-      marker,
-      `${marker}\n\n${line}`,
-    );
-    body = body.replace(
-      `${marker}\n\n${line}\n\n(Entries appended here chronologically.)`,
-      `${marker}\n\n${line}`,
-    );
-  } else {
-    body += `\n\n## Engagement log\n\n${line}\n`;
-  }
+  const cleanedAfter = after
+    .replace('(Entries appended here chronologically.)', '')
+    .replace(/^\s+/, '')
+    .replace(/\s+$/, '');
+
+  const newSection = cleanedAfter
+    ? `${marker}\n\n${line}\n\n${cleanedAfter}\n`
+    : `${marker}\n\n${line}\n`;
+
+  const body = `${before}${newSection}`;
 
   const frontmatter = { ...target.frontmatter };
   frontmatter.last_engagement = entry.date;
